@@ -1,0 +1,65 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<pthread.h>
+#define max 10
+int a[max][max],b[max][max],sum[max][max],prod[max][max];
+int n,i,j,k;
+void* mat_add(void* arg){
+   for(i=0;i<n;i++){
+      for(j=0;j<n;j++){
+         sum[i][j]=a[i][j]+b[i][j];
+      }
+   }
+   printf("Addition thread executed\nRESULT:\n");
+   for(i=0;i<n;i++){
+      for(j=0;j<n;j++){
+         printf("%d\t",sum[i][j]);
+      }
+      printf("\n");
+   }
+   return NULL;
+}
+void* mat_mul(void* arg){
+   for(i=0;i<n;i++){
+      for(j=0;j<n;j++){
+         prod[i][j]=0;
+         for(k=0;k<n;k++){
+            prod[i][j]+=a[i][k]*b[k][j];
+         }
+      }
+   }
+   printf("\nMultiplication thread executed\nRESULT:\n");
+   for(i=0;i<n;i++){
+      for(j=0;j<n;j++){
+         printf("%d\t",prod[i][j]);
+      }
+      printf("\n");
+   }
+   return NULL;
+}
+int main(){
+   pthread_t thread1,thread2;
+   printf("Enter the size of the square matrix (N x N): ");
+   scanf("%d",&n);
+   if(n>max){
+      printf("\nError:Maximum size exceeded");
+      return 1;
+   }
+   printf("Enter elements for matrix A :\n");
+   for(i=0;i<n;i++){
+      for(j=0;j<n;j++){
+         scanf("%d",&a[i][j]);
+      }
+   }
+   printf("\nEnter elements for matrix B :\n");
+   for(i=0;i<n;i++){
+      for(j=0;j<n;j++){
+         scanf("%d",&b[i][j]);
+      }
+   }
+   pthread_create(&thread1,NULL,mat_add,NULL);
+   pthread_join(thread1,NULL);
+   pthread_create(&thread2,NULL,mat_mul,NULL);
+   pthread_join(thread2,NULL);
+   return 0;
+}
