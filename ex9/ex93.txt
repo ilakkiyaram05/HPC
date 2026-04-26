@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <omp.h>
+double f(double x) {
+    return x * x;
+}
+int main() {
+    double a, b;
+    int n,i;
+    printf("Enter lower limit (a): ");
+    scanf("%lf", &a);
+    printf("Enter upper limit (b): ");
+    scanf("%lf", &b);
+    printf("Enter number of trapezoids (n): ");
+    scanf("%d", &n);
+    double h = (b - a) / n;
+    double endpoints = (f(a) + f(b)) / 2.0;
+    double result_reduction = endpoints;
+    double start_time = omp_get_wtime();
+    #pragma omp parallel for reduction(+:result_reduction)
+    for (i = 1; i < n; i++) {
+        result_reduction += f(a + i * h);
+    }
+    result_reduction *= h;
+    double end_time = omp_get_wtime();
+    printf("\n[Reduction Method]\n");
+    printf("Result: %.2f\n", result_reduction);
+    printf("Time taken: %.4f seconds\n", end_time - start_time);
+    double result_critical = endpoints;
+    start_time = omp_get_wtime();
+    #pragma omp parallel
+    {
+        double local_sum = 0.0;
+        #pragma omp for
+        for (i = 1; i < n; i++) {
+            local_sum += f(a + i * h);
+        }
+        #pragma omp critical
+        {
+            result_critical += local_sum;
+        }
+    }
+    result_critical *= h;
+    end_time = omp_get_wtime();
+    printf("\n[Critical Method]\n");
+    printf("Result: %.2f\n", result_critical);
+    printf("Time taken: %.4f seconds\n", end_time - start_time);
+    return 0;
+}

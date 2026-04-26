@@ -1,0 +1,24 @@
+#include<stdio.h>
+#include<omp.h>
+int main(){
+   int n, i, thread_cnt;
+   int count=0;
+   printf("Enter array size: ");
+   scanf("%d", &n);
+   int arr[n], target;
+   for(i=0; i<n; i++){
+      scanf("%d", &arr[i]);
+   }
+   printf("\nEnter target value: ");
+   scanf("%d", &target);
+   printf("\nNo. of Threads: ");
+   scanf("%d", &thread_cnt);
+#pragma omp parallel for num_threads(thread_cnt) reduction(+:count)
+   for(i=0; i<n; i++){
+      if(arr[i] < target){
+         count = count + 1;
+      }
+   }
+   printf("\nNumber of values in the array less than given target = %d\n",count);
+   return 0;
+}
