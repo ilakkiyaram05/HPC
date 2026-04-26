@@ -1,0 +1,121 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+
+double determinant(int n, double **A) {
+    double det = 1.0;
+    int swapCount = 0;
+    for (int i = 0; i < n; i++) {
+        if (A[i][i] == 0) {
+            int swapped = 0;
+            for (int j = i + 1; j < n; j++) {
+                if (A[j][i] != 0) {
+                    double *temp = A[i];
+                    A[i] = A[j];
+                    A[j] = temp;
+                    swapCount++;
+                    swapped = 1;
+                    break;
+                }
+            }
+            if (!swapped) return 0;
+        }
+        for (int j = i + 1; j < n; j++) {
+            double factor = A[j][i] / A[i][i];
+            for (int k = i; k < n; k++) A[j][k] -= factor * A[i][k];
+        }
+    }
+    for (int i = 0; i < n; i++) det *= A[i][i];
+    if (swapCount % 2 != 0) det = -det;
+    return det;
+}
+
+int main() {
+    int m1, n1, m2, n2;
+    printf("Enter rows and columns of Matrix A: ");
+    scanf("%d %d", &m1, &n1);
+    printf("Enter rows and columns of Matrix B: ");
+    scanf("%d %d", &m2, &n2);
+
+    double **A = malloc(m1 * sizeof(double *));
+    double **B = malloc(m2 * sizeof(double *));
+    for (int i = 0; i < m1; i++) A[i] = malloc(n1 * sizeof(double));
+    for (int i = 0; i < m2; i++) B[i] = malloc(n2 * sizeof(double));
+
+    for (int i = 0; i < m1; i++)
+        for (int j = 0; j < n1; j++)
+            A[i][j] = rand() % 10;
+
+    for (int i = 0; i < m2; i++)
+        for (int j = 0; j < n2; j++)
+            B[i][j] = rand() % 10;
+
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+    if (m1 == m2 && n1 == n2) {
+        double **add = malloc(m1 * sizeof(double *));
+        for (int i = 0; i < m1; i++) add[i] = malloc(n1 * sizeof(double));
+        for (int i = 0; i < m1; i++)
+            for (int j = 0; j < n1; j++)
+                add[i][j] = A[i][j] + B[i][j];
+        for (int i = 0; i < m1; i++) free(add[i]);
+        free(add);
+    }
+
+    if (m1 == m2 && n1 == n2) {
+        double **sub = malloc(m1 * sizeof(double *));
+        for (int i = 0; i < m1; i++) sub[i] = malloc(n1 * sizeof(double));
+        for (int i = 0; i < m1; i++)
+            for (int j = 0; j < n1; j++)
+                sub[i][j] = A[i][j] - B[i][j];
+        for (int i = 0; i < m1; i++) free(sub[i]);
+        free(sub);
+    }
+
+    if (n1 == m2) {
+        double **mul = malloc(m1 * sizeof(double *));
+        for (int i = 0; i < m1; i++) mul[i] = malloc(n2 * sizeof(double));
+        for (int i = 0; i < m1; i++)
+            for (int j = 0; j < n2; j++) {
+                mul[i][j] = 0;
+                for (int k = 0; k < n1; k++)
+                    mul[i][j] += A[i][k] * B[k][j];
+            }
+        for (int i = 0; i < m1; i++) free(mul[i]);
+        free(mul);
+    }
+
+    if (m1 == n1) {
+        double **copyA = malloc(m1 * sizeof(double *));
+        for (int i = 0; i < m1; i++) {
+            copyA[i] = malloc(n1 * sizeof(double));
+            for (int j = 0; j < n1; j++) copyA[i][j] = A[i][j];
+        }
+        determinant(m1, copyA);
+        for (int i = 0; i < m1; i++) free(copyA[i]);
+        free(copyA);
+    }
+
+    if (m2 == n2) {
+        double **copyB = malloc(m2 * sizeof(double *));
+        for (int i = 0; i < m2; i++) {
+            copyB[i] = malloc(n2 * sizeof(double));
+            for (int j = 0; j < n2; j++) copyB[i][j] = B[i][j];
+        }
+        determinant(m2, copyB);
+        for (int i = 0; i < m2; i++) free(copyB[i]);
+        free(copyB);
+    }
+
+    gettimeofday(&end, NULL);
+    double serial_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_usec - start.tv_usec) / 1000.0;
+    printf("Serial execution time: %.3lf ms\n", serial_time);
+
+    for (int i = 0; i < m1; i++) free(A[i]);
+    for (int i = 0; i < m2; i++) free(B[i]);
+    free(A);
+    free(B);
+
+    return 0;
+}
