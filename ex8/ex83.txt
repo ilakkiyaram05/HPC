@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <omp.h>
+
+#define SIZE 1000000
+
+int main() {
+    int arr[SIZE];
+    int constant = 10;
+    int i;
+    for (i = 0; i < SIZE; i++) {
+        arr[i] = i;
+    }
+    #pragma omp parallel for
+    for (i = 0; i < SIZE; i++) {
+        arr[i] = arr[i] + constant;
+    }
+    printf("Verification:\n");
+    printf("arr[100] is now: %d\n", arr[100]);
+    printf("arr[900000] is now: %d\n", arr[900000]);
+    printf("arr[%d] is now: %d\n",SIZE-1, arr[SIZE-1]);
+    return 0;
+}

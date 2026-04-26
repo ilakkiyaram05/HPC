@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <omp.h>
+#define SIZE 1000000
+int a[SIZE], b[SIZE], c[SIZE];
+int main() {
+    int i;
+    for (i = 0; i < SIZE; i++) {
+        a[i] = 1;
+        b[i] = 2;
+    }
+    #pragma omp parallel for
+    for (i = 0; i < SIZE; i++) {
+        c[i] = a[i] + b[i];
+    }
+    printf("Verification :\n");
+    printf("c[0] = %d\n", c[0]);
+    printf("c[500000] = %d\n", c[500000]);
+    printf("c[%d] = %d\n", SIZE-1, c[SIZE-1]);
+
+    return 0;
+}
