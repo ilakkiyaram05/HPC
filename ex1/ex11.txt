@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#define MAX 1001
+int A[MAX][MAX], B[MAX][MAX], C[MAX][MAX];
+int main() {
+    int m, n, p;
+    printf("Enter m,n,p: ");
+    if(scanf("%d %d %d", &m, &n, &p) != 3) return 1;
+    long iterations = (m>=500)?1:10000;
+    srand(time(NULL));
+    int i, j, k;
+    for (i = 0; i < m; i++) {
+        for (j = 0; j < n; j++) A[i][j] = rand() % 10;
+    }
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < p; j++) B[i][j] = rand() % 10;
+    }
+    clock_t start = clock();
+    int count;
+    for (count = 0; count < iterations; count++) {
+        for (i = 0; i < m; i++) {
+            for (j = 0; j < p; j++) {
+                C[i][j] = 0;
+                for (k = 0; k < n; k++) {
+                    C[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+    }
+    clock_t end = clock();
+    double total_seconds = (double)(end - start) / CLOCKS_PER_SEC;
+    double single_run_seconds = total_seconds / iterations;
+    double nanoseconds = single_run_seconds * 1000000000.0;
+
+    printf("\nSerial time per run: %.0f nanoseconds\n", nanoseconds);
+    return 0;
+}
